@@ -1,5 +1,6 @@
 package com.example.notification.websocket;
 
+import com.example.notification.dto.WebSocketNotificationMessage;
 import com.example.notification.entity.Notification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
@@ -110,42 +111,4 @@ public class NotificationWebSocketHandler implements WebSocketHandler {
         );
     }
 
-    // Inner class for WebSocket message structure
-    public static class WebSocketNotificationMessage {
-        private Long id;
-        private String title;
-        private String message;
-        private String priority;
-        private String channel;
-        private String type;
-
-        public WebSocketNotificationMessage(Long id, String title, String message,
-                                            String priority, String channel, String type) {
-            this.id = id;
-            this.title = title;
-            this.message = message;
-            this.priority = priority;
-            this.channel = channel;
-            this.type = type;
-        }
-
-        // Getters and setters
-        public Long getId() { return id; }
-        public void setId(Long id) { this.id = id; }
-
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
-
-        public String getPriority() { return priority; }
-        public void setPriority(String priority) { this.priority = priority; }
-
-        public String getChannel() { return channel; }
-        public void setChannel(String channel) { this.channel = channel; }
-
-        public String getType() { return type; }
-        public void setType(String type) { this.type = type; }
-    }
 }

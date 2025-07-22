@@ -1,0 +1,404 @@
+{
+  "info": {
+    "name": "Notification System API",
+    "description": "Complete API collection for the Spring Boot Notification System with priority queuing, multiple channels, and WebSocket support",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user123\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+1234567890\",\n  \"fcmToken\": \"fcm_token_abc123\",\n  \"userType\": \"REGULAR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"]
+            },
+            "description": "Create a new user with notification preferences"
+          }
+        },
+        {
+          "name": "Create VIP User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"vip456\",\n  \"email\": \"vip.user@example.com\",\n  \"phoneNumber\": \"+1987654321\",\n  \"fcmToken\": \"fcm_token_vip456\",\n  \"userType\": \"VIP\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"]
+            },
+            "description": "Create a VIP user (gets priority boost for notifications)"
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/user123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "user123"]
+            },
+            "description": "Retrieve user information by userId"
+          }
+        },
+        {
+          "name": "Update Channel Preferences",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"EMAIL\": true,\n  \"SMS\": true,\n  \"PUSH\": false,\n  \"IN_APP\": true,\n  \"WEBSOCKET\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/user123/preferences",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "user123", "preferences"]
+            },
+            "description": "Update user's notification channel preferences"
+          }
+        }
+      ],
+      "description": "User management endpoints for creating and managing users"
+    },
+    {
+      "name": "Notification Management",
+      "item": [
+        {
+          "name": "Send Critical Email Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user123\",\n  \"title\": \"Critical Alert\",\n  \"message\": \"Your account has been compromised. Please change your password immediately.\",\n  \"priority\": \"CRITICAL\",\n  \"channel\": \"EMAIL\",\n  \"metadata\": {\n    \"alertType\": \"security\",\n    \"severity\": \"high\",\n    \"actionRequired\": \"true\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            },
+            "description": "Send a critical priority email notification (processed immediately)"
+          }
+        },
+        {
+          "name": "Send SMS Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user123\",\n  \"title\": \"SMS Alert\",\n  \"message\": \"Your order #12345 has been shipped and will arrive tomorrow.\",\n  \"priority\": \"HIGH\",\n  \"channel\": \"SMS\",\n  \"metadata\": {\n    \"orderId\": \"12345\",\n    \"trackingNumber\": \"TRK789\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            },
+            "description": "Send a high priority SMS notification"
+          }
+        },
+        {
+          "name": "Send Push Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user123\",\n  \"title\": \"New Message\",\n  \"message\": \"You have received a new message from John Doe\",\n  \"priority\": \"MEDIUM\",\n  \"channel\": \"PUSH\",\n  \"metadata\": {\n    \"senderId\": \"johndoe\",\n    \"messageType\": \"direct\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            },
+            "description": "Send a medium priority push notification"
+          }
+        },
+        {
+          "name": "Send In-App Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user123\",\n  \"title\": \"Welcome Back!\",\n  \"message\": \"Check out the new features we've added while you were away.\",\n  \"priority\": \"LOW\",\n  \"channel\": \"IN_APP\",\n  \"metadata\": {\n    \"feature\": \"dashboard_updates\",\n    \"version\": \"2.1.0\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            },
+            "description": "Send a low priority in-app notification"
+          }
+        },
+        {
+          "name": "Send WebSocket Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user123\",\n  \"title\": \"Real-time Update\",\n  \"message\": \"Your document has been updated by a collaborator.\",\n  \"priority\": \"MEDIUM\",\n  \"channel\": \"WEBSOCKET\",\n  \"metadata\": {\n    \"documentId\": \"doc_456\",\n    \"collaborator\": \"jane.smith\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            },
+            "description": "Send a real-time WebSocket notification"
+          }
+        },
+        {
+          "name": "Send VIP User Notification (Priority Boost)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"vip456\",\n  \"title\": \"VIP Exclusive Offer\",\n  \"message\": \"Special discount available for VIP members only!\",\n  \"priority\": \"LOW\",\n  \"channel\": \"EMAIL\",\n  \"metadata\": {\n    \"offerCode\": \"VIP50\",\n    \"validUntil\": \"2024-12-31\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            },
+            "description": "Send notification to VIP user (LOW becomes MEDIUM due to VIP boost)"
+          }
+        },
+        {
+          "name": "Get User Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/user/user123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "user", "user123"]
+            },
+            "description": "Retrieve all sent notifications for a specific user"
+          }
+        },
+        {
+          "name": "Get Notification by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "1"]
+            },
+            "description": "Retrieve specific notification details by ID"
+          }
+        },
+        {
+          "name": "Send Bulk Notifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"userId\": \"user123\",\n    \"title\": \"System Maintenance\",\n    \"message\": \"Scheduled maintenance will occur tonight from 2-4 AM.\",\n    \"priority\": \"MEDIUM\",\n    \"channel\": \"EMAIL\"\n  },\n  {\n    \"userId\": \"user123\",\n    \"title\": \"System Maintenance\",\n    \"message\": \"Maintenance tonight 2-4 AM\",\n    \"priority\": \"MEDIUM\",\n    \"channel\": \"SMS\"\n  },\n  {\n    \"userId\": \"vip456\",\n    \"title\": \"System Maintenance\",\n    \"message\": \"VIP Notice: Scheduled maintenance tonight 2-4 AM. Priority support available.\",\n    \"priority\": \"HIGH\",\n    \"channel\": \"EMAIL\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "bulk"]
+            },
+            "description": "Send multiple notifications in a single request"
+          }
+        }
+      ],
+      "description": "Notification creation and retrieval endpoints"
+    },
+    {
+      "name": "Audit & Tracking",
+      "item": [
+        {
+          "name": "Get Notification Audit Trail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/audit/notification/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audit", "notification", "1"]
+            },
+            "description": "Get complete audit trail for a specific notification"
+          }
+        },
+        {
+          "name": "Get User Audit Trail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/audit/user/user123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audit", "user", "user123"]
+            },
+            "description": "Get audit trail for all notifications sent to a specific user"
+          }
+        }
+      ],
+      "description": "Audit and tracking endpoints for notification history"
+    },
+    {
+      "name": "Testing Scenarios",
+      "item": [
+        {
+          "name": "Test Priority Queue Processing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"userId\": \"user123\",\n    \"title\": \"Low Priority Test\",\n    \"message\": \"This should be processed last (15s delay)\",\n    \"priority\": \"LOW\",\n    \"channel\": \"EMAIL\"\n  },\n  {\n    \"userId\": \"user123\",\n    \"title\": \"Critical Priority Test\",\n    \"message\": \"This should be processed first (no delay)\",\n    \"priority\": \"CRITICAL\",\n    \"channel\": \"SMS\"\n  },\n  {\n    \"userId\": \"user123\",\n    \"title\": \"Medium Priority Test\",\n    \"message\": \"This should be processed third (5s delay)\",\n    \"priority\": \"MEDIUM\",\n    \"channel\": \"PUSH\"\n  },\n  {\n    \"userId\": \"user123\",\n    \"title\": \"High Priority Test\",\n    \"message\": \"This should be processed second (1s delay)\",\n    \"priority\": \"HIGH\",\n    \"channel\": \"IN_APP\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "bulk"]
+            },
+            "description": "Test priority queue processing with different priority levels"
+          }
+        },
+        {
+          "name": "Test All Channels for User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"userId\": \"user123\",\n    \"title\": \"Multi-Channel Test - Email\",\n    \"message\": \"Testing email notification channel\",\n    \"priority\": \"MEDIUM\",\n    \"channel\": \"EMAIL\"\n  },\n  {\n    \"userId\": \"user123\",\n    \"title\": \"Multi-Channel Test - SMS\",\n    \"message\": \"Testing SMS notification channel\",\n    \"priority\": \"MEDIUM\",\n    \"channel\": \"SMS\"\n  },\n  {\n    \"userId\": \"user123\",\n    \"title\": \"Multi-Channel Test - Push\",\n    \"message\": \"Testing push notification channel\",\n    \"priority\": \"MEDIUM\",\n    \"channel\": \"PUSH\"\n  },\n  {\n    \"userId\": \"user123\",\n    \"title\": \"Multi-Channel Test - In-App\",\n    \"message\": \"Testing in-app notification channel\",\n    \"priority\": \"MEDIUM\",\n    \"channel\": \"IN_APP\"\n  },\n  {\n    \"userId\": \"user123\",\n    \"title\": \"Multi-Channel Test - WebSocket\",\n    \"message\": \"Testing WebSocket notification channel\",\n    \"priority\": \"MEDIUM\",\n    \"channel\": \"WEBSOCKET\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "bulk"]
+            },
+            "description": "Test all notification channels for comprehensive testing"
+          }
+        },
+        {
+          "name": "Test VIP vs Regular User Priority",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"userId\": \"user123\",\n    \"title\": \"Regular User - High Priority\",\n    \"message\": \"High priority for regular user\",\n    \"priority\": \"HIGH\",\n    \"channel\": \"EMAIL\"\n  },\n  {\n    \"userId\": \"vip456\",\n    \"title\": \"VIP User - High Priority\",\n    \"message\": \"High priority for VIP user (becomes CRITICAL)\",\n    \"priority\": \"HIGH\",\n    \"channel\": \"EMAIL\"\n  },\n  {\n    \"userId\": \"user123\",\n    \"title\": \"Regular User - Low Priority\",\n    \"message\": \"Low priority for regular user\",\n    \"priority\": \"LOW\",\n    \"channel\": \"SMS\"\n  },\n  {\n    \"userId\": \"vip456\",\n    \"title\": \"VIP User - Low Priority\",\n    \"message\": \"Low priority for VIP user (becomes MEDIUM)\",\n    \"priority\": \"LOW\",\n    \"channel\": \"SMS\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "bulk"]
+            },
+            "description": "Compare processing priority between regular and VIP users"
+          }
+        }
+      ],
+      "description": "Test scenarios for comprehensive system testing"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set dynamic timestamp for unique testing",
+          "pm.globals.set('timestamp', Date.now());"
+        ]
+      }
+    }
+  ]
+}

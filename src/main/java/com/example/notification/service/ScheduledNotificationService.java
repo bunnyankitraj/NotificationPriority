@@ -3,6 +3,7 @@ package com.example.notification.service;
 import com.example.notification.entity.Notification;
 import com.example.notification.enums.NotificationStatus;
 import com.example.notification.repository.NotificationRepository;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,34 +23,28 @@ public class ScheduledNotificationService {
     private NotificationRepository notificationRepository;
 
     @Autowired
-    private NotificationService notificationService;
+    private NotificationProcessor notificationProcessor;
 
     @Autowired
     private TaskScheduler taskScheduler;
 
-    // Track scheduled tasks so we can cancel them if needed
     private final ConcurrentHashMap<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
     public void scheduleNotification(Notification notification) {
         if (notification.getScheduledAt() != null && notification.getScheduledAt().isAfter(LocalDateTime.now())) {
-
-            // Convert LocalDateTime to Date for TaskScheduler
             Date scheduleTime = Date.from(notification.getScheduledAt()
                     .atZone(ZoneId.systemDefault()).toInstant());
 
-            // Schedule the task
             ScheduledFuture<?> scheduledTask = taskScheduler.schedule(
                     () -> {
                         System.out.println("⏰ Processing scheduled notification: " + notification.getId());
-                        notificationService.processScheduledNotification(notification.getId());
-                        scheduledTasks.remove(notification.getId()); // Clean up
+                        notificationProcessor.processScheduledNotification(notification.getId());
+                        scheduledTasks.remove(notification.getId());
                     },
                     scheduleTime
             );
 
-            // Store the scheduled task for potential cancellation
             scheduledTasks.put(notification.getId(), scheduledTask);
-
             System.out.println("📅 Scheduled notification " + notification.getId() +
                     " for " + notification.getScheduledAt());
         }
@@ -65,8 +60,7 @@ public class ScheduledNotificationService {
         return false;
     }
 
-    // Fallback mechanism: Check for missed scheduled notifications every minute
-    @Scheduled(fixedRate = 60000) // Run every minute
+    @Scheduled(fixedRate = 60000)
     public void processMissedScheduledNotifications() {
         LocalDateTime now = LocalDateTime.now();
         List<Notification> missedNotifications = notificationRepository
@@ -74,7 +68,7 @@ public class ScheduledNotificationService {
 
         for (Notification notification : missedNotifications) {
             System.out.println("🔄 Processing missed scheduled notification: " + notification.getId());
-            notificationService.processScheduledNotification(notification.getId());
+            notificationProcessor.processScheduledNotification(notification.getId());
         }
 
         if (!missedNotifications.isEmpty()) {

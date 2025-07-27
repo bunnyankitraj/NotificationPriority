@@ -1,0 +1,34 @@
+# Maven target directory (compiled classes, JARs, etc.)
+/target/
+
+# IntelliJ IDEA project files
+/.idea/
+/*.iml
+/.vscode/
+
+# Log files
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Java class files
+*.class
+
+# Build artifacts
+*.jar
+*.war
+*.ear
+
+# Temporary files
+*.swp
+*.swo
+*.bak
+
+# Ignore Maven wrapper (optional if using wrapper)
+/.mvn/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Ignore any local environment files
+.env

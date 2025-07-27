@@ -154,7 +154,22 @@ public class NotificationService {
         return false;
     }
 
-    // Existing methods...
+    // NEW: Verify user ownership of notification
+    public boolean verifyNotificationOwnership(Long notificationId, String userId) {
+        Optional<Notification> optionalNotification = notificationRepository.findById(notificationId);
+        return optionalNotification.isPresent() && 
+               optionalNotification.get().getUserId().equals(userId);
+    }
+
+    // NEW: Get notification with ownership verification
+    public Optional<NotificationResponse> getNotificationWithOwnership(Long id, String userId) {
+        Optional<Notification> notification = notificationRepository.findById(id);
+        if (notification.isPresent() && notification.get().getUserId().equals(userId)) {
+            return notification.map(this::convertToResponse);
+        }
+        return Optional.empty();
+    }
+
     public List<NotificationResponse> getUserNotifications(String userId) {
         List<Notification> notifications = notificationRepository.findByUserIdAndStatus(userId, NotificationStatus.SENT);
         return notifications.stream()

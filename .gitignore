@@ -19,3 +19,6 @@ Thumbs.db
 # Maven wrapper (optional)
 /.mvn/
 !.mvn/wrapper/maven-wrapper.jar
+
+# VS Code settings
+settings.json

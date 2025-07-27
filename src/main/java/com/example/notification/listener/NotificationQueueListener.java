@@ -27,36 +27,58 @@ public class NotificationQueueListener {
                 ));
     }
 
-    @RabbitListener(queues = RabbitMQConfig.CRITICAL_QUEUE)
+    // CRITICAL: Most consumers, highest priority
+    @RabbitListener(
+            queues = RabbitMQConfig.CRITICAL_QUEUE,
+            containerFactory = "criticalListenerFactory"
+    )
     public void handleCriticalNotification(Notification notification) {
-        System.out.println("Processing CRITICAL notification: " + notification.getId());
+        System.out.println("⚡ Processing CRITICAL notification: " + notification.getId() + " - IMMEDIATE");
         processNotification(notification);
     }
 
-    @RabbitListener(queues = RabbitMQConfig.HIGH_QUEUE)
+    // HIGH: Good number of consumers
+    @RabbitListener(
+            queues = RabbitMQConfig.HIGH_QUEUE,
+            containerFactory = "highListenerFactory"
+    )
     public void handleHighNotification(Notification notification) {
-        System.out.println("Processing HIGH priority notification: " + notification.getId());
+        System.out.println("🔥 Processing HIGH priority notification: " + notification.getId());
         processNotification(notification);
     }
 
-    @RabbitListener(queues = RabbitMQConfig.MEDIUM_QUEUE)
+    // MEDIUM: Moderate consumers
+    @RabbitListener(
+            queues = RabbitMQConfig.MEDIUM_QUEUE,
+            containerFactory = "mediumListenerFactory"
+    )
     public void handleMediumNotification(Notification notification) {
-        System.out.println("Processing MEDIUM priority notification: " + notification.getId());
+        System.out.println("📊 Processing MEDIUM priority notification: " + notification.getId());
         processNotification(notification);
     }
 
-    @RabbitListener(queues = RabbitMQConfig.LOW_QUEUE)
+    // LOW: Fewer consumers - will naturally be slower under load
+    @RabbitListener(
+            queues = RabbitMQConfig.LOW_QUEUE,
+            containerFactory = "lowListenerFactory"
+    )
     public void handleLowNotification(Notification notification) {
-        System.out.println("Processing LOW priority notification: " + notification.getId());
+        System.out.println("📝 Processing LOW priority notification: " + notification.getId());
         processNotification(notification);
     }
 
     private void processNotification(Notification notification) {
         NotificationProcessor processor = processors.get(notification.getChannel());
         if (processor != null) {
+            long startTime = System.currentTimeMillis();
             processor.processNotification(notification);
+            long processingTime = System.currentTimeMillis() - startTime;
+
+            System.out.println("✅ Completed " + notification.getPriority() +
+                    " notification " + notification.getId() +
+                    " in " + processingTime + "ms");
         } else {
-            System.err.println("No processor found for channel: " + notification.getChannel());
+            System.err.println("❌ No processor found for channel: " + notification.getChannel());
         }
     }
 }

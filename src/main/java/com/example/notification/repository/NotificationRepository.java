@@ -18,4 +18,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findPendingNotificationsByPriority(NotificationStatus status, LocalDateTime now);
 
     List<Notification> findByStatusAndRetryCountLessThan(NotificationStatus status, int maxRetries);
+
+    List<Notification> findScheduledNotificationsPastDue(NotificationStatus status, LocalDateTime dateTime);
+
+    List<Notification> findByUserIdOrderByCreatedAtDesc(String userId);
+
+    long countByStatus(NotificationStatus status);
+
 }

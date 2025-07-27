@@ -6,6 +6,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class QueueService {
 
@@ -23,9 +25,29 @@ public class QueueService {
                 routingKey,
                 notification,
                 message -> {
-                    message.getMessageProperties().setPriority(notification.getPriority().getLevel());
+                    // Set message priority - higher number = higher priority
+                    int messagePriority = 10 - notification.getPriority().getLevel(); // Invert so CRITICAL=9, LOW=6
+                    message.getMessageProperties().setPriority(messagePriority);
+
+                    // Add timestamp for tracking
+                    message.getMessageProperties().setTimestamp(new java.util.Date());
+
+                    // Add custom headers
+                    message.getMessageProperties().setHeader("priority", notification.getPriority().name());
+                    message.getMessageProperties().setHeader("userId", notification.getUserId());
+                    message.getMessageProperties().setHeader("channel", notification.getChannel().name());
+
                     return message;
                 }
         );
+
+        System.out.println("📤 Queued " + notification.getPriority() +
+                " notification " + notification.getId() +
+                " to " + routingKey + " queue");
+    }
+
+    // Bulk send method for high-throughput scenarios
+    public void sendBulkToQueue(List<Notification> notifications) {
+        notifications.forEach(this::sendToQueue);
     }
 }

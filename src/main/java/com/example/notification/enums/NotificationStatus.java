@@ -1,5 +1,10 @@
 package com.example.notification.enums;
 
 public enum NotificationStatus {
-    PENDING, PROCESSING, SENT, FAILED, RETRYING
+    PENDING,
+    SCHEDULED,    // NEW: For notifications waiting for scheduled time
+    PROCESSING,
+    SENT,
+    FAILED,
+    RETRYING
 }

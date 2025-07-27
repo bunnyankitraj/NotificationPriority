@@ -1,19 +1,20 @@
 package com.example.notification.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum NotificationPriority {
-    CRITICAL(1, 0), // Highest priority, no delay
-    HIGH(2, 1000),  // 1 second delay
-    MEDIUM(3, 5000), // 5 seconds delay
-    LOW(4, 15000);   // 15 seconds delay
+    CRITICAL(1),    // Highest priority
+    HIGH(2),        // High priority
+    MEDIUM(3),      // Medium priority
+    LOW(4);         // Lowest priority
 
     private final int level;
-    private final long delayMs;
 
-    NotificationPriority(int level, long delayMs) {
+    NotificationPriority(int level) {
         this.level = level;
-        this.delayMs = delayMs;
     }
 
-    public int getLevel() { return level; }
-    public long getDelayMs() { return delayMs; }
+    // Remove delayMs - no more artificial delays
+    // Priority is now handled purely by queue priority and processing order
 }

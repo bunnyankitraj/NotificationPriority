@@ -48,7 +48,7 @@ public class RateLimitAspect {
             // Check user-specific rate limit
             if (userId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("User ID is required for rate limiting");
+                        .body("User ID is null");
             }
             
             rateLimitExceeded = rateLimitService.isRateLimitExceeded(

@@ -276,10 +276,59 @@ Response:
 GET /api/monitoring/health
 ```
 
-#### Audit Trail
+#### Audit Trail (Admin Only)
 ```http
 GET /api/audit/notification/{notificationId}
+Authorization: Bearer admin789
+X-User-ID: admin789
+
 GET /api/audit/user/{userId}
+Authorization: Bearer admin789
+X-User-ID: admin789
+```
+
+### Security API Examples
+
+#### Create Notification (with authentication)
+```http
+POST /api/notifications
+Content-Type: application/json
+X-User-ID: user123
+
+{
+  "userId": "user123",
+  "title": "Important Update",
+  "message": "Your account has been updated successfully",
+  "priority": "HIGH",
+  "channel": "EMAIL"
+}
+```
+
+#### Get User Notifications (with ownership verification)
+```http
+GET /api/notifications/user/user123?userId=user123
+```
+
+#### Cancel Scheduled Notification (with ownership verification)
+```http
+DELETE /api/notifications/123/cancel?userId=user123
+```
+
+#### System Statistics (Admin Only)
+```http
+GET /api/monitoring/stats
+Authorization: Bearer admin789
+X-User-ID: admin789
+```
+
+#### Rate Limit Response Example
+```http
+HTTP/1.1 429 Too Many Requests
+X-RateLimit-Limit: 50
+X-RateLimit-Window: 60
+X-RateLimit-Reset: 30
+
+Rate limit exceeded. Please try again in 30 seconds.
 ```
 
 ## 🔄 Priority System
@@ -484,17 +533,72 @@ notification:
   immediate-processing: true
 ```
 
-## 🔐 Security Considerations
+## 🔐 Security Features
 
-### Input Validation
+### User Ownership Verification
+Users can only access their own notifications. The system automatically verifies ownership before allowing access to notification details or cancellation.
+
+```java
+@RequireRole(value = {UserType.REGULAR, UserType.VIP, UserType.ADMIN}, requireOwnership = true)
+public ResponseEntity<NotificationResponse> getNotification(@PathVariable Long id)
+```
+
+### Role-Based Access Control
+Different endpoints require different user roles:
+
+- **REGULAR**: Basic notification operations
+- **VIP**: Enhanced features including bulk operations
+- **ADMIN**: Full access including monitoring and audit endpoints
+
+```java
+// Regular users can create notifications
+@RequireRole({UserType.REGULAR, UserType.VIP, UserType.ADMIN})
+public ResponseEntity<NotificationResponse> createNotification(...)
+
+// Only VIP and Admin users can create bulk notifications
+@RequireRole({UserType.VIP, UserType.ADMIN})
+public ResponseEntity<List<NotificationResponse>> createBulkNotifications(...)
+
+// Only Admin users can access monitoring
+@RequireRole({UserType.ADMIN})
+public ResponseEntity<Map<String, Object>> getSystemStats(...)
+```
+
+### API Rate Limiting
+Per-user and global rate limiting with configurable limits:
+
+```java
+// User-specific rate limiting
+@RateLimit(maxRequests = 50, windowSeconds = 60, endpoint = "create_notification")
+
+// Global rate limiting
+@RateLimit(maxRequests = 100, windowSeconds = 60, endpoint = "health_check", global = true)
+```
+
+Rate limits are enforced with appropriate HTTP headers:
+- `X-RateLimit-Limit`: Maximum requests allowed
+- `X-RateLimit-Window`: Time window in seconds
+- `X-RateLimit-Reset`: Time until rate limit resets
+
+### Authentication Methods
+The system supports multiple ways to provide user identification:
+
+1. **Request Parameter**: `?userId=user123`
+2. **Header**: `X-User-ID: user123`
+3. **Authorization Header**: `Authorization: Bearer user123` (for JWT tokens)
+
+### Security Considerations
+
+#### Input Validation
 - All request payloads are validated using Jakarta Bean Validation
 - SQL injection prevention through JPA parameterized queries
 - XSS protection for notification content
 
 ### Authentication & Authorization
-- User ownership verification for notifications
-- Role-based access for admin endpoints
-- API rate limiting (recommended to implement)
+- **User Ownership Verification**: Users can only access their own notifications
+- **Role-Based Access Control**: Different endpoints require different user roles (REGULAR, VIP, ADMIN)
+- **API Rate Limiting**: Per-user and global rate limiting with configurable limits
+- **Admin-Only Endpoints**: Monitoring and audit endpoints restricted to admin users
 
 ### Data Privacy
 - Personal data encryption in database

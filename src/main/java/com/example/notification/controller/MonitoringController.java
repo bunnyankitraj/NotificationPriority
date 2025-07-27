@@ -1,5 +1,8 @@
 package com.example.notification.controller;
 
+import com.example.notification.annotation.RateLimit;
+import com.example.notification.annotation.RequireRole;
+import com.example.notification.enums.UserType;
 import com.example.notification.service.LoadBalancingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,8 @@ public class MonitoringController {
     private LoadBalancingService loadBalancingService;
 
     @GetMapping("/stats")
+    @RateLimit(maxRequests = 30, windowSeconds = 60, endpoint = "monitoring_stats")
+    @RequireRole({UserType.ADMIN})
     public ResponseEntity<Map<String, Object>> getSystemStats() {
         LoadBalancingService.LoadStats stats = loadBalancingService.getLoadStats();
 
@@ -36,6 +41,7 @@ public class MonitoringController {
     }
 
     @GetMapping("/health")
+    @RateLimit(maxRequests = 100, windowSeconds = 60, endpoint = "health_check")
     public ResponseEntity<Map<String, String>> healthCheck() {
         Map<String, String> health = new HashMap<>();
         health.put("status", "UP");

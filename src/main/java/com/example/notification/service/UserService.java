@@ -26,4 +26,23 @@ public class UserService {
                 .map(user -> user.getUserType() == UserType.VIP || user.getUserType() == UserType.ADMIN)
                 .orElse(false);
     }
+
+    // NEW: Check if user is admin
+    public boolean isAdminUser(String userId) {
+        return findById(userId)
+                .map(user -> user.getUserType() == UserType.ADMIN)
+                .orElse(false);
+    }
+
+    // NEW: Check if user has admin or VIP role
+    public boolean hasAdminOrVIPRole(String userId) {
+        return findById(userId)
+                .map(user -> user.getUserType() == UserType.ADMIN || user.getUserType() == UserType.VIP)
+                .orElse(false);
+    }
+
+    // NEW: Get user type
+    public Optional<UserType> getUserType(String userId) {
+        return findById(userId).map(User::getUserType);
+    }
 }

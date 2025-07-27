@@ -3,7 +3,6 @@ package com.example.notification.service;
 import com.example.notification.entity.Notification;
 import com.example.notification.enums.NotificationStatus;
 import com.example.notification.repository.NotificationRepository;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;

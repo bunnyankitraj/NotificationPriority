@@ -553,7 +553,7 @@ Different endpoints require different user roles:
 ```java
 // Regular users can create notifications
 @RequireRole({UserType.REGULAR, UserType.VIP, UserType.ADMIN})
-public ResponseEntity<NotificationResponse> createNotification()
+public ResponseEntity<NotificationResponse> createNotification(...)
 
 // Only VIP and Admin users can create bulk notifications
 @RequireRole({UserType.VIP, UserType.ADMIN})

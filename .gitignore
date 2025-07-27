@@ -1,0 +1,21 @@
+# Maven build output
+/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ and IDE files
+/.idea/
+/*.iml
+
+# Logs and temp files
+*.log
+*.swp
+*.bak
+.DS_Store
+Thumbs.db
+
+# Maven wrapper (optional)
+/.mvn/
+!.mvn/wrapper/maven-wrapper.jar

@@ -15,5 +15,7 @@ public class NotificationResponse {
     private NotificationChannel channel;
     private NotificationStatus status;
     private String createdAt;
+    private String scheduledAt;  // NEW: Show when notification is scheduled
     private String sentAt;
+    private boolean isScheduled; // NEW: Flag to indicate if notification is scheduled
 }

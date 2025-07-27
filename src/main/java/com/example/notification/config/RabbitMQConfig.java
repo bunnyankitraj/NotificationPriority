@@ -25,7 +25,8 @@ public class RabbitMQConfig {
     @Bean
     public Queue criticalQueue() {
         return QueueBuilder.durable(CRITICAL_QUEUE)
-                .withArgument("x-max-priority", 10)
+                .withArgument("x-max-priority", 10)      // Highest queue priority
+                .withArgument("x-max-length", 10000)     // Prevent memory issues under high load
                 .build();
     }
 
@@ -33,6 +34,7 @@ public class RabbitMQConfig {
     public Queue highQueue() {
         return QueueBuilder.durable(HIGH_QUEUE)
                 .withArgument("x-max-priority", 8)
+                .withArgument("x-max-length", 50000)
                 .build();
     }
 
@@ -40,6 +42,7 @@ public class RabbitMQConfig {
     public Queue mediumQueue() {
         return QueueBuilder.durable(MEDIUM_QUEUE)
                 .withArgument("x-max-priority", 5)
+                .withArgument("x-max-length", 100000)
                 .build();
     }
 
@@ -47,6 +50,7 @@ public class RabbitMQConfig {
     public Queue lowQueue() {
         return QueueBuilder.durable(LOW_QUEUE)
                 .withArgument("x-max-priority", 2)
+                .withArgument("x-max-length", 200000)    // Largest buffer for low priority
                 .build();
     }
 
@@ -87,8 +91,54 @@ public class RabbitMQConfig {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(messageConverter());
-        factory.setConcurrentConsumers(3);
+
+        // CRITICAL: Set different concurrency for different priority levels
+        // More consumers for critical notifications
+        factory.setConcurrentConsumers(5);
+        factory.setMaxConcurrentConsumers(20);
+
+        return factory;
+    }
+
+    // Separate listener factories for different priorities
+    @Bean("criticalListenerFactory")
+    public SimpleRabbitListenerContainerFactory criticalListenerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(messageConverter());
+        factory.setConcurrentConsumers(10);    // More consumers for critical
+        factory.setMaxConcurrentConsumers(30);
+        return factory;
+    }
+
+    @Bean("highListenerFactory")
+    public SimpleRabbitListenerContainerFactory highListenerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(messageConverter());
+        factory.setConcurrentConsumers(8);
+        factory.setMaxConcurrentConsumers(25);
+        return factory;
+    }
+
+    @Bean("mediumListenerFactory")
+    public SimpleRabbitListenerContainerFactory mediumListenerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(messageConverter());
+        factory.setConcurrentConsumers(5);
+        factory.setMaxConcurrentConsumers(15);
+        return factory;
+    }
+
+    @Bean("lowListenerFactory")
+    public SimpleRabbitListenerContainerFactory lowListenerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(messageConverter());
+        factory.setConcurrentConsumers(3);     // Fewer consumers for low priority
         factory.setMaxConcurrentConsumers(10);
         return factory;
     }
 }
+
